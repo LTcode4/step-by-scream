@@ -1,0 +1,1715 @@
+// app global css in SCSS form
+
+// UI 規範：顏色只用黑、白、橘，透明度只用 100% / 60% / 20%；字級只有 3 層
+// （與 tailwind.config.js 一致，給 scoped style 使用）
+:root {
+  --c-black: #000;
+  --c-white: #fff;
+  --c-orange: #ff7b1c;
+  --c-white-60: rgba(255, 255, 255, 0.6);
+  --c-white-20: rgba(255, 255, 255, 0.2);
+  --c-black-60: rgba(0, 0, 0, 0.6);
+  --c-orange-60: rgba(255, 123, 28, 0.6);
+  --c-orange-20: rgba(255, 123, 28, 0.2);
+  --fs-display: 4.5rem;
+  --fs-title: 1.5rem;
+  --fs-body: 0.875rem;
+}
+
+// 互動類型專案設定（遊戲已啟用）
+// user-select-none 避免文字反白、圖片被選擇
+body {
+  -webkit-user-select: none; // Safari
+  -moz-user-select: none; // Firefox
+  -ms-user-select: none; // IE10+/Edge
+  user-select: none; // 標準語法
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+// disable pinch zoom
+html {
+  touch-action: none;
+}
+// disable 上下頁手勢
+html,
+body {
+  overscroll-behavior: none;
+}
+// 每頁都不允許捲軸
+html,
+body,
+#q-app {
+  height: 100%;
+  overflow: hidden;
+}
+
+// 安裝字體
+// @font-face {
+//   font-family: 'Krungthep';
+//   src: url('assets/Krungthep.ttf') format('truetype');
+//   font-weight: normal;
+//   font-style: normal;
+// }
+// body {
+//   font-family: 'Krungthep', sans-serif;
+// }
+// 字體走 Google Fonts，不打包進專案（維持 1MB 內）；Creepster 用於英文恐怖標題
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-creep {
+  font-family: 'Creepster', 'Noto Sans TC', cursive;
+  font-weight: 400;
+}
+
+// ---------------------------------------------------------------
+// 共用動畫（首頁、結果頁、說明跳窗）
+// ---------------------------------------------------------------
+
+// 上下漂浮
+.anim-float {
+  animation: anim-float 3s ease-in-out infinite;
+}
+@keyframes anim-float {
+  50% {
+    transform: translateY(-8%);
+  }
+}
+
+// 眨眼（給 PixelArt 的 .eyes 部件）
+.anim-blink .eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: anim-blink 4s infinite;
+}
+@keyframes anim-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+// 燭火、南瓜臉閃爍（給 PixelArt 的 .glow 部件或整個元素）
+.anim-flicker,
+.anim-glow .glow {
+  animation: anim-flicker 2.2s steps(1) infinite;
+}
+@keyframes anim-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  8% {
+    opacity: 0.6;
+  }
+  10% {
+    opacity: 1;
+  }
+  46% {
+    opacity: 0.6;
+  }
+  48% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.2;
+  }
+  74% {
+    opacity: 1;
+  }
+}
+
+// 吊著擺盪（transform-origin 由使用處設定在吊點）
+.anim-swing {
+  animation: anim-swing 2.6s ease-in-out infinite;
+}
+@keyframes anim-swing {
+  0%,
+  100% {
+    transform: rotate(-9deg);
+  }
+  50% {
+    transform: rotate(9deg);
+  }
+}
+
+// 蝙蝠拍翅
+.anim-flap {
+  animation: anim-flap 0.28s steps(2) infinite;
+}
+@keyframes anim-flap {
+  50% {
+    transform: scaleY(0.45);
+  }
+}
+
+// 由下往上淡入（可搭配 animation-delay 做依序出現）
+.anim-rise {
+  animation: anim-rise 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes anim-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+// 1-bit 抖動網點背景
+.dither-dots {
+  background-image: radial-gradient(circle, var(--c-white-60) 0.6px, transparent 0.9px);
+  background-size: 4px 4px;
+}
+
+// ===============================================================
+// 版型 MainLayout（原 MainLayout.vue 的樣式）
+// ===============================================================
+$main-bg-color: #000;
+$secondary-bg-color: #000;
+body {
+  background: $secondary-bg-color;
+  color: var(--c-white);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0em;
+  text-align: center;
+}
+.main-bg {
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+/*
+ * 舞台尺寸規則（遵守 webkit-layout-pitfalls：不靠 aspect-ratio 單軸限制，兩軸都用 min() 算 contain）
+ *
+ * - 電腦（有滑鼠）：9:16 舞台完整塞進視窗、置中，視窗直的橫的、怎麼拉都不裁切、不捲動。
+ * - 手機 / 平板（觸控）：只能直玩，直拿時撐滿螢幕；平板較寬時最多到 3:4，避免畫面被拉得太空。
+ *   橫拿時由 RotateHint 蓋住提示轉直（舞台本身照常排版，不需特別處理）。
+ *   並預留瀏海、底部橫條的安全區域（index.html 需設 viewport-fit=cover）。
+ */
+.app-shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app-container {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: $main-bg-color;
+  > div {
+    width: 100%;
+    height: 100%;
+  }
+  /* Quasar 會把 q-page 的 min-height 設成整個視窗高；舞台比視窗小時要改成跟著舞台 */
+  .q-page {
+    height: 100%;
+    min-height: 0 !important;
+  }
+}
+
+/* --- 電腦：9:16 contain --- */
+/*
+ * fallback（不支援 container query 的舊 WebKit，iOS 15 以下）：高度綁定。
+ * 只有「視窗寬 / 高 < 9/16」時才會踩到 aspect-ratio 缺陷，電腦視窗幾乎不會這麼窄，可接受。
+ */
+.app-shell {
+  padding: 2vh;
+}
+.app-container {
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 9 / 16;
+  border: 1px solid var(--c-orange-60);
+  box-shadow: 0 0 24px var(--c-orange-20);
+}
+@supports (container-type: size) {
+  .app-shell {
+    container-type: size;
+  }
+  .app-container {
+    aspect-ratio: auto;
+    width: min(100cqw, calc(100cqh * 9 / 16));
+    height: min(100cqh, calc(100cqw * 16 / 9));
+  }
+}
+
+/* --- 手機 / 平板：撐滿，最寬 3:4，預留安全區域 --- */
+@media (hover: none) and (pointer: coarse) {
+  .app-shell {
+    padding: 0;
+  }
+  .app-container {
+    /* fallback：撐滿螢幕，寬度最多到高度的 3/4 */
+    width: 100%;
+    height: 100%;
+    max-width: 75vh;
+    aspect-ratio: auto;
+    border: none;
+    box-shadow: none;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  @supports (container-type: size) {
+    .app-container {
+      max-width: none;
+      width: min(100cqw, calc(100cqh * 3 / 4));
+      height: 100cqh;
+    }
+  }
+}
+
+// ---------------------------------------------------------------
+// 首頁 HomePage（原 HomePage.vue 的樣式）
+// ---------------------------------------------------------------
+.page-home {
+  /* 尺寸一律用 % 或 rem：桌機時舞台是 9:16 框，不能用 vw */
+  .sky {
+    opacity: 0.2;
+    mask-image: radial-gradient(ellipse at 15% 10%, black 0%, transparent 65%);
+    -webkit-mask-image: radial-gradient(ellipse at 15% 10%, black 0%, transparent 65%);
+  }
+
+  /* 月亮：白色圓盤 + 坑洞 + 網點，微微脈動發光 */
+  .moon {
+    top: 5%;
+    left: 7%;
+    width: 13%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 35%, #000 0 9%, transparent 10%),
+      radial-gradient(circle at 64% 62%, #000 0 6%, transparent 7%),
+      radial-gradient(circle at 70% 28%, #000 0 4%, transparent 5%),
+      radial-gradient(circle, transparent 0.7px, #fff 1px) 0 0 / 3px 3px,
+      #fff;
+    box-shadow: 0 0 40px var(--c-white-20);
+    animation: home-moon-glow 4s ease-in-out infinite;
+  }
+  @keyframes home-moon-glow {
+    50% {
+      box-shadow: 0 0 70px var(--c-white-60);
+    }
+  }
+
+  /* 緩慢飄動的霧 */
+  .fog {
+    height: 30%;
+    background: radial-gradient(ellipse at center, var(--c-white-20), transparent 70%);
+    animation: home-fog-move 14s ease-in-out infinite alternate;
+  }
+  .fog-a {
+    bottom: 18%;
+    left: -30%;
+    right: -30%;
+  }
+  .fog-b {
+    bottom: 2%;
+    left: -40%;
+    right: -20%;
+    animation-duration: 19s;
+    animation-direction: alternate-reverse;
+  }
+  @keyframes home-fog-move {
+    to {
+      transform: translateX(18%);
+    }
+  }
+
+  /* 蝙蝠由右往左飛過，忽上忽下 */
+  .bat {
+    left: 110%;
+    animation-name: home-bat-fly;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  @keyframes home-bat-fly {
+    0% {
+      left: 110%;
+      margin-top: 0;
+    }
+    50% {
+      margin-top: 8%;
+    }
+    100% {
+      left: -20%;
+      margin-top: -2%;
+    }
+  }
+
+  /* 樓梯：和 favicon 同樣的畫法——白色階面（踏面）+ 灰色網點立面 + 黑色分隔 */
+  .stairs {
+    height: 20%;
+  }
+  .step {
+    border-top: 4px solid #fff;
+    border-left: 2px solid #000;
+    background:
+      linear-gradient(to bottom, transparent 40%, #000 100%),
+      radial-gradient(circle, var(--c-white-60) 0.7px, transparent 1px) 0 0 / 3px 3px,
+      #000;
+    box-shadow: inset 0 3px 0 var(--c-white-20);
+  }
+
+  /* 從左下角探頭的幽靈 */
+  .peek {
+    left: -2%;
+    bottom: 14%;
+    width: 14%;
+    animation: home-peek 6s ease-in-out infinite;
+  }
+  @keyframes home-peek {
+    0%,
+    100% {
+      transform: translateX(-75%) rotate(12deg);
+    }
+    25%,
+    60% {
+      transform: translateX(0) rotate(-6deg);
+    }
+    40% {
+      transform: translateY(-8%) rotate(4deg);
+    }
+  }
+
+  /* 從天花板吊下來擺盪的南瓜燈 */
+  /* 首頁主角：從右上角天花板吊下來的大南瓜燈，緩慢擺盪；標題字可以壓在它上面 */
+  .hang {
+    top: 0;
+    right: 3%;
+    width: 44%;
+    transform-origin: top center;
+    animation: anim-swing 3.6s ease-in-out infinite;
+  }
+  .rope {
+    height: 1.5rem;
+  }
+  .pumpkin-glow {
+    filter: drop-shadow(0 0 18px var(--c-orange-60));
+    animation: home-pumpkin-breathe 2.4s ease-in-out infinite;
+  }
+  /* 南瓜燈光暈忽強忽弱，像裡面的燭火在呼吸 */
+  @keyframes home-pumpkin-breathe {
+    50% {
+      filter: drop-shadow(0 0 30px var(--c-orange));
+    }
+  }
+
+  /* 標題：字會隨機發抖、偶爾閃成南瓜橘 */
+  .title {
+    font-size: var(--fs-display);
+    letter-spacing: 0.04em;
+    text-shadow:
+      3px 3px 0 #ff7b1c,
+      0 0 18px var(--c-white-20);
+  }
+  .title-char {
+    display: inline-block;
+    animation: home-shiver 3.2s steps(1) infinite;
+  }
+  @keyframes home-shiver {
+    0%,
+    100% {
+      transform: none;
+      color: #fff;
+    }
+    4% {
+      transform: translate(-2px, 1px) rotate(-3deg);
+    }
+    6% {
+      transform: translate(2px, -1px) rotate(2deg);
+      color: #ff7b1c;
+    }
+    8% {
+      transform: none;
+      color: #fff;
+    }
+    51% {
+      transform: translateY(-3px);
+    }
+    53% {
+      transform: none;
+    }
+  }
+  /*
+   * 字下方的滴落（3.6 秒一輪）：
+   * 液柱從字底慢慢垂下 → 尾端水滴越脹越大 → 脫落往下掉並消失，液柱縮回
+   */
+  .drip {
+    position: absolute;
+    width: 0.09em;
+    height: 0;
+    margin-left: -0.045em;
+    border-radius: 0 0 0.05em 0.05em;
+    background: #fff;
+    /* 與標題文字同樣的橘色錯位陰影 */
+    filter: drop-shadow(3px 3px 0 #ff7b1c);
+    animation: home-drip-stem 3.6s var(--delay, 0s) ease-in-out infinite;
+  }
+  /* 尾端水滴：上尖下圓 */
+  .drop {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 0.15em;
+    height: 0.15em;
+    margin: -0.06em 0 0 -0.075em;
+    border-radius: 0 50% 50% 50%;
+    background: #fff;
+    transform: rotate(45deg) scale(0);
+    animation: home-drip-drop 3.6s var(--delay, 0s) ease-in infinite;
+  }
+  @keyframes home-drip-stem {
+    0% {
+      height: 0;
+    }
+    45%,
+    55% {
+      height: 0.22em;
+    }
+    75% {
+      height: 0.12em;
+    }
+    100% {
+      height: 0;
+    }
+  }
+  @keyframes home-drip-drop {
+    0% {
+      transform: translateY(0) rotate(45deg) scale(0.3);
+      opacity: 1;
+    }
+    50% {
+      transform: translateY(0) rotate(45deg) scale(1);
+    }
+    55% {
+      transform: translateY(0) rotate(45deg) scale(1.15);
+      opacity: 1;
+    }
+    80% {
+      transform: translateY(0.45em) rotate(45deg) scale(0.95);
+      opacity: 1;
+    }
+    92%,
+    100% {
+      transform: translateY(0.7em) rotate(45deg) scale(0.6);
+      opacity: 0;
+    }
+  }
+
+  .tagline {
+    animation: anim-rise 0.6s 0.4s both;
+  }
+
+  .subtitle {
+    font-size: var(--fs-title);
+    letter-spacing: 0.08em;
+    animation: anim-flicker 4s steps(1) infinite;
+  }
+
+  /* 開始按鈕：心跳般的脈動光暈，按下時往下壓 */
+  .start-btn {
+    box-shadow: 4px 4px 0 #fff;
+    animation: home-beat 1.6s ease-in-out infinite;
+  }
+  .start-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 #fff;
+    animation: none;
+  }
+  @keyframes home-beat {
+    0%,
+    100% {
+      filter: drop-shadow(0 0 0 transparent);
+    }
+    15% {
+      filter: drop-shadow(0 0 12px var(--c-orange));
+    }
+    30% {
+      filter: drop-shadow(0 0 4px var(--c-orange-60));
+    }
+    45% {
+      filter: drop-shadow(0 0 14px var(--c-orange));
+    }
+  }
+}
+
+// ---------------------------------------------------------------
+// 角色選擇頁 CharacterPage（原 CharacterPage.vue 的樣式）
+// ---------------------------------------------------------------
+.page-character {
+  .sky {
+    opacity: 0.2;
+    mask-image: radial-gradient(ellipse at 50% 35%, black 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 35%, black 0%, transparent 70%);
+  }
+  .spider {
+    right: 3.2rem;
+    top: 2.4rem;
+    animation: char-spider-bob 3s ease-in-out infinite;
+  }
+  @keyframes char-spider-bob {
+    50% {
+      transform: translateY(0.6rem);
+    }
+  }
+  /* 右下角的月光拱窗：白色窗框、網點夜空、月亮、十字窗櫺（只設寬度，高度由 3:4 比例決定） */
+  .window {
+    right: 5%;
+    bottom: 3%;
+    width: 24%;
+    aspect-ratio: 3 / 4;
+    border: 3px solid var(--c-white);
+    /* 上半圓拱：水平半徑各 50%（剛好半寬）、垂直半徑 38% 高 */
+    border-radius: 50% 50% 0 0 / 38% 38% 0 0;
+    background:
+      radial-gradient(circle, var(--c-white-20) 0.6px, transparent 0.9px) 0 0 / 3px 3px,
+      radial-gradient(ellipse at 50% 30%, var(--c-white-20), transparent 70%),
+      #000;
+    box-shadow:
+      4px 4px 0 #ff7b1c,
+      0 0 40px var(--c-white-20);
+    overflow: hidden;
+  }
+  .window-moon {
+    position: absolute;
+    top: 16%;
+    right: 18%;
+    width: 30%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 40%, #000 0 12%, transparent 13%),
+      radial-gradient(circle at 65% 65%, #000 0 8%, transparent 9%), #fff;
+    box-shadow: 0 0 18px var(--c-white-60);
+    animation: char-moon-glow 4s ease-in-out infinite;
+  }
+  @keyframes char-moon-glow {
+    50% {
+      box-shadow: 0 0 30px var(--c-white);
+    }
+  }
+  .window-bar-v,
+  .window-bar-h {
+    position: absolute;
+    background: var(--c-white);
+  }
+  .window-bar-v {
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    margin-left: -1.5px;
+  }
+  .window-bar-h {
+    left: 0;
+    right: 0;
+    top: 48%;
+    height: 3px;
+  }
+  /* 蝙蝠由右往左飛過窗前 */
+  .bat {
+    left: 110%;
+    animation-name: char-bat-fly;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  @keyframes char-bat-fly {
+    0% {
+      left: 110%;
+      margin-top: 0;
+    }
+    50% {
+      margin-top: -6%;
+    }
+    100% {
+      left: -20%;
+      margin-top: 2%;
+    }
+  }
+
+  .title {
+    text-shadow: 3px 3px 0 #ff7b1c;
+    animation-delay: 0.05s;
+  }
+
+  /* 角色卡 */
+  .card {
+    background:
+      radial-gradient(circle, var(--c-white-20) 0.6px, transparent 0.9px) 0 0 / 3px 3px,
+      #000;
+    transition:
+      transform 0.2s,
+      opacity 0.2s,
+      box-shadow 0.2s;
+  }
+  /* 沒選時：白框 + 白色錯位陰影，和其他按鈕同一種「可以按」的樣子 */
+  .card {
+    box-shadow: 4px 4px 0 var(--c-white);
+  }
+  /* 已經選了其中一個，另一張才變淡 */
+  .has-pick .card:not(.card-on) {
+    opacity: 0.6;
+  }
+  .card-on {
+    box-shadow:
+      4px 4px 0 #ff7b1c,
+      0 0 24px var(--c-orange-20);
+    transform: translateY(-4px);
+  }
+  /* 按下時往右下壓，陰影縮小 */
+  .card:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 var(--c-white);
+  }
+  .card-on:active {
+    box-shadow: 1px 1px 0 #ff7b1c;
+  }
+  /* 角色像素圖加白色外框，深色頭髮在黑底上也看得清楚 */
+  .portrait {
+    width: auto;
+    filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff)
+      drop-shadow(0 -2px 0 #fff);
+    animation: char-idle 1.6s ease-in-out infinite;
+  }
+  /* 選到的角色開心地跳 */
+  .card-on .portrait {
+    animation: char-hop 0.6s ease-in-out infinite;
+  }
+  @keyframes char-idle {
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+  @keyframes char-hop {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      /* 跳的高度配合卡片上方留白（pt-8），最高點也碰不到頭上的小南瓜 */
+      transform: translateY(-10px);
+    }
+  }
+  .portrait-shadow {
+    width: 55%;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--c-white-20);
+  }
+  .badge {
+    margin-left: -1.125rem;
+    animation: char-badge-pop 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+  @keyframes char-badge-pop {
+    from {
+      transform: scale(0) rotate(-30deg);
+    }
+  }
+
+  .go-btn:not(:disabled) {
+    box-shadow: 4px 4px 0 #fff;
+  }
+  .go-btn:not(:disabled):active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 #fff;
+  }
+}
+
+// ---------------------------------------------------------------
+// 遊戲頁 GamePage（原 GamePage.vue 的樣式）
+// ---------------------------------------------------------------
+.page-game {
+  /* 開始提示：橘色錯位陰影 + 心跳般放大縮小 */
+  .start-hint {
+    text-shadow: 3px 3px 0 #ff7b1c;
+    animation: game-start-beat 1.2s ease-in-out infinite;
+  }
+  @keyframes game-start-beat {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    15% {
+      transform: scale(1.12);
+    }
+    30% {
+      transform: scale(1);
+    }
+    45% {
+      transform: scale(1.08);
+    }
+  }
+
+  /* 燈油增加時平滑補滿 */
+  .fuel-fill {
+    transition: width 0.6s ease-out;
+  }
+  /* 燈油不足時閃爍 */
+  .fuel-low {
+    animation: game-fuel-low 0.5s steps(2) infinite;
+  }
+  @keyframes game-fuel-low {
+    50% {
+      opacity: 0.2;
+    }
+  }
+  /* 南瓜燈接近時跳躍鈕閃爍南瓜橘提示 */
+  .jump-pulse {
+    animation: game-jump-pulse 0.3s steps(2) infinite;
+  }
+  @keyframes game-jump-pulse {
+    50% {
+      background: #ff7b1c;
+      border-color: #ff7b1c;
+      color: #000;
+    }
+  }
+  /* 燈油將盡：四周往內收的網點暗角 */
+  .danger-edge {
+    background-image: radial-gradient(circle, #fff 0.8px, transparent 1px);
+    background-size: 5px 5px;
+    mask-image: radial-gradient(ellipse at 50% 50%, transparent 40%, black 85%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 50%, transparent 40%, black 85%);
+  }
+}
+
+// ---------------------------------------------------------------
+// 結果頁 ResultPage（原 ResultPage.vue 的樣式）
+// ---------------------------------------------------------------
+.page-result {
+  .bg-dots {
+    opacity: 0.2;
+    mask-image: radial-gradient(ellipse at 50% 40%, black 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 40%, black 0%, transparent 70%);
+  }
+  .fog {
+    left: -30%;
+    right: -30%;
+    bottom: 22%;
+    height: 25%;
+    background: radial-gradient(ellipse at center, var(--c-white-20), transparent 70%);
+    animation: result-fog-move 12s ease-in-out infinite alternate;
+  }
+  @keyframes result-fog-move {
+    to {
+      transform: translateX(15%);
+    }
+  }
+
+  /* 角色：站在墓碑左邊（一半探出墓碑外），白色外框讓深色頭髮在黑底上看得清楚，輕輕晃動 */
+  .hero {
+    left: -3.4rem;
+    width: auto;
+    filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff)
+      drop-shadow(0 -2px 0 #fff);
+    transform-origin: bottom center;
+    animation: result-hero-sway 2.4s ease-in-out infinite;
+  }
+  @keyframes result-hero-sway {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg) translateY(-2px);
+    }
+  }
+  /* 蝙蝠由右往左飛過 */
+  .bat {
+    left: 110%;
+    animation-name: result-bat-fly;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  @keyframes result-bat-fly {
+    0% {
+      left: 110%;
+      margin-top: 0;
+    }
+    50% {
+      margin-top: 6%;
+    }
+    100% {
+      left: -20%;
+      margin-top: -2%;
+    }
+  }
+
+  /* 從墓碑右後方探頭的幽靈 */
+  .peek-ghost {
+    right: -1.2rem;
+    top: 12%;
+    animation: result-peek-ghost 5s ease-in-out infinite;
+  }
+  @keyframes result-peek-ghost {
+    0%,
+    100% {
+      transform: translateX(-70%) rotate(0deg);
+      opacity: 0;
+    }
+    20%,
+    55% {
+      transform: translateX(10%) rotate(12deg);
+      opacity: 1;
+    }
+    38% {
+      transform: translate(10%, -10%) rotate(6deg);
+    }
+    75% {
+      transform: translateX(-70%) rotate(0deg);
+      opacity: 0.6;
+    }
+  }
+
+  /* 熄滅的提燈冒煙 */
+  .smoke {
+    position: absolute;
+    left: 45%;
+    top: 30%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--c-white-60);
+    animation: result-smoke 1.8s ease-out infinite;
+  }
+  @keyframes result-smoke {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) scale(0.6);
+    }
+    20% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(8px, -34px) scale(1.8);
+    }
+  }
+
+  /* 墓碑：圓頂 + 網點質感，輕輕搖晃 */
+  .tomb {
+    transform-origin: bottom center;
+  }
+  .tomb-inner {
+    border: 2px solid #fff;
+    border-radius: 999px 999px 0 0 / 70% 70% 0 0;
+    background:
+      radial-gradient(circle, var(--c-white-20) 0.6px, transparent 0.9px) 0 0 / 3px 3px,
+      #000;
+    box-shadow: 5px 0 0 #ff7b1c;
+    animation: result-tomb-wobble 5s ease-in-out infinite;
+  }
+  @keyframes result-tomb-wobble {
+    0%,
+    100% {
+      transform: rotate(-1deg);
+    }
+    50% {
+      transform: rotate(1.2deg);
+    }
+  }
+  .score {
+    font-size: var(--fs-display);
+    text-shadow: 3px 3px 0 #ff7b1c;
+  }
+  .rank {
+    animation: result-rank-in 0.5s 1.4s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+  @keyframes result-rank-in {
+    from {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+  }
+  .ground {
+    height: 6px;
+    background: radial-gradient(circle, var(--c-white-60) 0.8px, transparent 1px);
+    background-size: 4px 4px;
+  }
+
+  .btn:active {
+    transform: translate(2px, 2px);
+  }
+  .btn-main {
+    box-shadow: 4px 4px 0 #fff;
+  }
+  .btn-main:active {
+    box-shadow: 1px 1px 0 #fff;
+  }
+}
+
+// ---------------------------------------------------------------
+// 404 頁 ErrorNotFound（原 ErrorNotFound.vue 的樣式）
+// ---------------------------------------------------------------
+/* ---------- 結果頁彩蛋：地標建築 ---------- */
+.landmark-egg {
+  .landmark-scene {
+    height: 15rem;
+    color: var(--c-white);
+    /* 蝙蝠橫越時不要飛出跳窗 */
+    overflow-x: clip;
+  }
+  .landmark-burj {
+    height: 17rem;
+  }
+  .landmark-moon {
+    top: 4%;
+    right: 10%;
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 50%;
+    background: var(--c-white);
+    box-shadow: 0 0 1.5rem var(--c-white-20);
+    opacity: 0.6;
+  }
+  /* 建築從地面往上長出來 */
+  .landmark-building {
+    animation: landmark-rise 2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .landmark-body {
+    fill: var(--c-black);
+  }
+  /* 窗戶由下往上一格格亮起，之後偶爾閃一下 */
+  .landmark-window {
+    fill: var(--c-orange);
+    opacity: 0;
+    animation:
+      landmark-window-on 0.3s ease-out forwards,
+      landmark-window-flicker 3.2s steps(1) 3s infinite;
+  }
+  .landmark-tip {
+    fill: var(--c-orange);
+    stroke: none;
+    animation: landmark-tip 1s steps(1) 2s infinite;
+    opacity: 0;
+  }
+  .landmark-silk {
+    opacity: 0;
+    animation: landmark-fade 0.4s ease-out 2.2s forwards;
+  }
+  .landmark-spider {
+    opacity: 0;
+    animation:
+      landmark-fade 0.4s ease-out 2.2s forwards,
+      landmark-spider 2.4s ease-in-out 2.2s infinite;
+  }
+  .landmark-roof-pumpkin {
+    opacity: 0;
+    animation: landmark-drop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 2s both;
+  }
+  .landmark-ghost {
+    top: 22%;
+    left: 10%;
+    animation: landmark-ghost 5s ease-in-out 1s infinite both;
+  }
+  .landmark-bat {
+    left: -12%;
+    animation: landmark-bat linear infinite;
+  }
+  .landmark-ground {
+    height: 2px;
+    background: var(--c-white-60);
+  }
+  .landmark-text {
+    opacity: 0;
+    animation: landmark-fade 0.5s ease-out 2s forwards;
+  }
+}
+@keyframes landmark-rise {
+  from {
+    clip-path: inset(100% 0 0 0);
+    transform: translate(-50%, 8%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: translate(-50%, 0);
+  }
+}
+@keyframes landmark-window-on {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes landmark-window-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  48% {
+    opacity: 0.2;
+  }
+  52% {
+    opacity: 1;
+  }
+}
+@keyframes landmark-tip {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+@keyframes landmark-fade {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes landmark-spider {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 0.8rem;
+  }
+}
+@keyframes landmark-drop {
+  from {
+    opacity: 0;
+    translate: 0 -2rem;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes landmark-ghost {
+  0%,
+  100% {
+    opacity: 0;
+    translate: 0 0.5rem;
+  }
+  20%,
+  70% {
+    opacity: 1;
+    translate: 0 -0.5rem;
+  }
+}
+@keyframes landmark-bat {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(28rem);
+  }
+}
+
+.page-404 {
+  .sky {
+    opacity: 0.2;
+    mask-image: radial-gradient(ellipse at 50% 40%, black 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 40%, black 0%, transparent 70%);
+  }
+
+  /* 迷路的幽靈：左右飄來飄去、東張西望 */
+  .lost {
+    animation: nf-wander 4s ease-in-out infinite;
+  }
+  @keyframes nf-wander {
+    0%,
+    100% {
+      transform: translateX(-12px) rotate(-6deg);
+    }
+    50% {
+      transform: translateX(12px) translateY(-8px) rotate(6deg);
+    }
+  }
+  .question {
+    position: absolute;
+    top: -1.6rem;
+    right: -0.6rem;
+    text-shadow: 2px 2px 0 var(--c-black);
+    animation: nf-question 1.6s ease-in-out infinite;
+  }
+  @keyframes nf-question {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-10deg);
+    }
+    50% {
+      transform: translateY(-6px) rotate(10deg);
+    }
+  }
+  .lantern {
+    right: -1.2rem;
+    bottom: 0.4rem;
+    transform-origin: top center;
+    animation: anim-swing 2s ease-in-out infinite;
+  }
+
+  /* 404 數字：與首頁標題同樣的橘色錯位陰影；中間的南瓜燈輕輕搖晃 */
+  .digits {
+    text-shadow: 3px 3px 0 var(--c-orange);
+  }
+  .pumpkin {
+    filter: drop-shadow(0 0 12px var(--c-orange-60));
+    animation: anim-swing 2.4s ease-in-out infinite;
+  }
+
+  .home-btn {
+    box-shadow: 4px 4px 0 var(--c-white);
+  }
+  .home-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 var(--c-white);
+  }
+
+  /* 蝙蝠由右往左飛過 */
+  .bat {
+    left: 110%;
+    animation-name: nf-bat-fly;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  @keyframes nf-bat-fly {
+    0% {
+      left: 110%;
+      margin-top: 0;
+    }
+    50% {
+      margin-top: 6%;
+    }
+    100% {
+      left: -20%;
+      margin-top: -2%;
+    }
+  }
+}
+
+// ---------------------------------------------------------------
+// 教學 TutorialOverlay（原 TutorialOverlay.vue 的樣式）
+// ---------------------------------------------------------------
+.tutorial-overlay {
+  /*
+   * GamePage 的 HUD 在 p-4 內：愛心列 top 1rem、高 1.25rem；燈油條列 top 2.75rem、高約 1rem
+   * （教學時燈油條右側多顯示百分比，全寬約 10rem）
+   */
+  /* 撿到糖果：燈油條右側淡入淡出 +30% */
+  .fuel-pop {
+    left: 11.5rem;
+    top: 2.6rem;
+    text-shadow: 2px 2px 0 #000;
+    animation: tut-fuel-pop 1.8s ease-in-out both;
+  }
+  @keyframes tut-fuel-pop {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    25%,
+    70% {
+      opacity: 1;
+      transform: none;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+  /* 規則：說明文字放在燈油條正下方（燈油條框底約在 4.05rem） */
+  .rules-text {
+    left: 1rem;
+    right: 1rem;
+    top: 4.6rem;
+  }
+  /* 規則：圈出愛心與燈油條 */
+  .hud-ring {
+    border: 2px dashed #ff7b1c;
+    border-radius: 0.5rem;
+    animation: tut-ring-pulse 1s ease-in-out infinite;
+  }
+  .hud-ring-hearts {
+    left: 0.5rem;
+    top: 0.6rem;
+    width: 5.6rem;
+    height: 1.9rem;
+  }
+  .hud-ring-fuel {
+    left: 0.5rem;
+    top: 2.55rem;
+    width: 11rem;
+    height: 1.5rem;
+  }
+
+  /*
+   * GamePage 左下角的跳躍鈕：bottom 6%、left 1.25rem、5rem 見方，中心在 (3.75rem, 6% + 2.5rem)。
+   * GestureHint 是 7rem 見方、指尖在正中央，所以把它的中心對到按鈕中心。
+   */
+  .jump-hint {
+    left: calc(1.25rem + 2.5rem - 3.5rem);
+    bottom: calc(6% + 2.5rem - 3.5rem);
+  }
+
+  /* 物件標註：圈住糖果 / 幽靈的虛線圈（位置大小由程式計算） */
+  .mark-ring {
+    border: 2px dashed #ff7b1c;
+    border-radius: 50%;
+    animation: tut-ring-pulse 1.2s ease-in-out infinite;
+  }
+  .mark-ring.faint {
+    opacity: 0.6;
+  }
+  @keyframes tut-ring-pulse {
+    50% {
+      transform: scale(1.06);
+    }
+  }
+
+  /* 完成跳窗：大南瓜置中、往上超出跳窗約 5rem */
+  .final-pumpkin {
+    top: -5rem;
+    margin-left: -4.5rem;
+    filter: drop-shadow(0 0 16px var(--c-orange-60));
+  }
+
+  /* 完成跳窗：沿左側吊絲爬上爬下的蜘蛛（吊絲在 left 1.5rem） */
+  .spider-climb {
+    left: calc(1.5rem - 0.75rem + 0.5px);
+    bottom: 100%;
+    animation: tut-spider-climb 4s ease-in-out infinite;
+  }
+  @keyframes tut-spider-climb {
+    0%,
+    100% {
+      transform: translateY(-0.4rem);
+    }
+    45%,
+    55% {
+      transform: translateY(-3.4rem);
+    }
+  }
+  /* 停在右上角蜘蛛網上、偶爾挪動一下的蜘蛛 */
+  .spider-web {
+    right: 1.6rem;
+    top: 1.4rem;
+    animation: tut-spider-shuffle 5s steps(1) infinite;
+  }
+  @keyframes tut-spider-shuffle {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    40% {
+      transform: translate(-3px, 2px);
+    }
+    70% {
+      transform: translate(2px, -1px);
+    }
+  }
+}
+
+// ---------------------------------------------------------------
+// 手勢提示 GestureHint（原 GestureHint.vue 的樣式）
+// ---------------------------------------------------------------
+.gesture {
+  & {
+    width: 7rem;
+    height: 7rem;
+  }
+  .hand {
+    position: absolute;
+    /* 指尖對準元件中心 */
+    left: calc(50% - 1rem);
+    top: 50%;
+    width: 2.5rem;
+    filter: drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000) drop-shadow(0 2px 0 #000)
+      drop-shadow(0 -2px 0 #000);
+  }
+
+  /* 點擊：手往下按，指尖擴散兩圈波紋 */
+  &.tap .hand {
+    animation: gesture-press 1.2s ease-in-out infinite;
+  }
+  @keyframes gesture-press {
+    0%,
+    100% {
+      transform: translate(0, 10px);
+    }
+    35%,
+    55% {
+      transform: translate(0, 0) scale(0.92);
+    }
+  }
+  .ripple {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3.2rem;
+    height: 3.2rem;
+    margin: -1.6rem 0 0 -1.6rem;
+    border: 3px solid #ff7b1c;
+    border-radius: 50%;
+    opacity: 0;
+    animation: gesture-ripple 1.2s ease-out infinite;
+  }
+  .ripple-2 {
+    animation-delay: 0.15s;
+    border-color: #fff;
+  }
+  @keyframes gesture-ripple {
+    0%,
+    35% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    40% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.4);
+    }
+  }
+
+  /* 滑動：手橫向劃過，後面拖著一條軌跡 */
+  &.swipe-left .hand {
+    animation: gesture-swipe-left 1.4s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+  }
+  &.swipe-right .hand {
+    animation: gesture-swipe-right 1.4s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+  }
+  @keyframes gesture-swipe-left {
+    0% {
+      opacity: 0;
+      transform: translateX(3rem);
+    }
+    15% {
+      opacity: 1;
+      transform: translateX(3rem);
+    }
+    75% {
+      opacity: 1;
+      transform: translateX(-3rem);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-3rem);
+    }
+  }
+  @keyframes gesture-swipe-right {
+    0% {
+      opacity: 0;
+      transform: translateX(-3rem);
+    }
+    15% {
+      opacity: 1;
+      transform: translateX(-3rem);
+    }
+    75% {
+      opacity: 1;
+      transform: translateX(3rem);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(3rem);
+    }
+  }
+  .trail {
+    position: absolute;
+    top: calc(50% - 2px);
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to var(--dir), transparent, #ff7b1c);
+  }
+  &.swipe-left .trail {
+    --dir: left;
+    right: 0.5rem;
+    animation: gesture-trail-left 1.4s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+  }
+  &.swipe-right .trail {
+    --dir: right;
+    left: 0.5rem;
+    animation: gesture-trail-right 1.4s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+  }
+  @keyframes gesture-trail-left {
+    0%,
+    15% {
+      width: 0;
+      opacity: 1;
+    }
+    75% {
+      width: 6rem;
+      opacity: 1;
+    }
+    100% {
+      width: 6rem;
+      opacity: 0;
+    }
+  }
+  @keyframes gesture-trail-right {
+    0%,
+    15% {
+      width: 0;
+      opacity: 1;
+    }
+    75% {
+      width: 6rem;
+      opacity: 1;
+    }
+    100% {
+      width: 6rem;
+      opacity: 0;
+    }
+  }
+  .chevrons {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(50% - 2.4rem);
+    text-align: center;
+    font-size: var(--fs-title);
+    letter-spacing: 0.2em;
+    color: #ff7b1c;
+    animation: anim-flicker 1.4s steps(1) infinite;
+  }
+}
+
+// ---------------------------------------------------------------
+// 轉直提示 RotateHint（原 RotateHint.vue 的樣式）
+// ---------------------------------------------------------------
+.rotate-hint {
+  /* 手機外框：從橫的轉成直的，反覆示範 */
+  .phone {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 4.2rem;
+    height: 7rem;
+    margin: -3.5rem 0 0 -2.1rem;
+    border: 4px solid #fff;
+    border-radius: 0.75rem;
+    box-shadow: 4px 4px 0 #ff7b1c;
+    /* 螢幕內容（南瓜）置中，按鈕留在下方 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 0.6rem;
+    animation: rotate-phone 2.4s ease-in-out infinite;
+  }
+  /* 手機螢幕下方的按鈕 */
+  .phone::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0.4rem;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-left: -0.3rem;
+    border-radius: 50%;
+    background: #fff;
+  }
+  @keyframes rotate-phone {
+    0%,
+    20% {
+      transform: rotate(-90deg);
+    }
+    55%,
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+}
+
+// ---------------------------------------------------------------
+// 跳窗 DropDialog（原 DropDialog.vue 的樣式）
+// ---------------------------------------------------------------
+.dlg-panel {
+  /* 像素風錯位陰影（南瓜橘） */
+  box-shadow: 5px 5px 0 #ff7b1c;
+}
+.dlg-rope {
+  position: absolute;
+  bottom: 100%;
+  width: 1px;
+  height: 100vh;
+  /* 蜘蛛絲：細、半透明，越往上越淡 */
+  background: linear-gradient(to top, var(--c-white), var(--c-white-20));
+}
+/* 絲上一顆顆小露珠（比絲寬，用偽元素畫） */
+.dlg-rope::after {
+  content: '';
+  position: absolute;
+  inset: 0 -2px;
+  background-image: radial-gradient(circle, var(--c-white) 0 1.2px, transparent 1.8px);
+  background-position: 50% 12px;
+  background-size: 5px 46px;
+  background-repeat: repeat-y;
+}
+
+.dlg-fade-enter-active,
+.dlg-fade-leave-active {
+  transition: opacity 0.3s;
+}
+.dlg-fade-enter-from,
+.dlg-fade-leave-to {
+  opacity: 0;
+}
+
+/* 由上往下掉落，落地回彈 */
+.dlg-drop-enter-active {
+  animation: dlg-drop-in 0.75s cubic-bezier(0.3, 0.8, 0.4, 1) both;
+}
+.dlg-drop-leave-active {
+  animation: dlg-drop-out 0.4s cubic-bezier(0.5, 0, 0.9, 0.5) both;
+}
+@keyframes dlg-drop-in {
+  0% {
+    transform: translateY(-120vh) rotate(-3deg);
+  }
+  60% {
+    transform: translateY(14px) rotate(1.5deg);
+  }
+  78% {
+    transform: translateY(-6px) rotate(-0.8deg);
+  }
+  90% {
+    transform: translateY(2px) rotate(0.3deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes dlg-drop-out {
+  to {
+    transform: translateY(120vh) rotate(5deg);
+  }
+}
+
+// ---------------------------------------------------------------
+// 蠟燭 CandleLight（原 CandleLight.vue 的樣式）
+// ---------------------------------------------------------------
+/* 蠟燭：奶油色燭身 + 燭芯 + 搖曳火焰 + 往外擴散的暖色光暈 */
+.candle {
+  /* 定位由使用處決定（absolute 放在樓梯上，或 relative 排在一列裡） */
+  width: calc(0.6rem * var(--size));
+  height: calc(1.6rem * var(--size));
+}
+.candle-body {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(to right, #fff3dc 60%, #e8cfa2);
+  box-shadow: 0 0 0 2px #000;
+}
+/* 燭淚 */
+.candle-body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  width: 30%;
+  height: 40%;
+  border-radius: 0 0 4px 4px;
+  background: #fff3dc;
+}
+.candle-wick {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 2px;
+  height: calc(0.3rem * var(--size));
+  margin-left: -1px;
+  background: #3c281e;
+}
+.candle-flame {
+  position: absolute;
+  bottom: calc(100% + 0.15rem * var(--size));
+  left: 50%;
+  width: calc(0.55rem * var(--size));
+  height: calc(0.95rem * var(--size));
+  margin-left: calc(-0.275rem * var(--size));
+  border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+  background: radial-gradient(ellipse at 50% 70%, #fff6c9 0 25%, #ffd36b 40%, #ff7b1c 75%);
+  transform-origin: 50% 100%;
+  animation: candle-flame 1.3s ease-in-out infinite alternate;
+  animation-delay: inherit;
+}
+.candle-glow {
+  position: absolute;
+  /* 光暈中心對齊火焰 */
+  bottom: calc(100% + 0.6rem * var(--size) - 3rem * var(--size));
+  left: 50%;
+  width: calc(6rem * var(--size));
+  height: calc(6rem * var(--size));
+  margin-left: calc(-3rem * var(--size));
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 200, 110, 0.6),
+    rgba(255, 123, 28, 0.22) 38%,
+    transparent 70%
+  );
+  animation: candle-glow 2.2s steps(1) infinite;
+  animation-delay: inherit;
+}
+@keyframes candle-flame {
+  0% {
+    transform: rotate(-4deg) scale(1, 1);
+  }
+  40% {
+    transform: rotate(3deg) scale(0.92, 1.1);
+  }
+  70% {
+    transform: rotate(-2deg) scale(1.05, 0.94);
+  }
+  100% {
+    transform: rotate(4deg) scale(0.96, 1.06);
+  }
+}
+@keyframes candle-glow {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  20% {
+    opacity: 0.75;
+    transform: scale(0.95);
+  }
+  24% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 0.85;
+    transform: scale(1.04);
+  }
+  80% {
+    opacity: 0.6;
+    transform: scale(0.97);
+  }
+  83% {
+    opacity: 1;
+  }
+}
+
+// ---------------------------------------------------------------
+// 蜘蛛網 CobWeb（原 CobWeb.vue 的樣式）
+// ---------------------------------------------------------------
+.cobweb {
+  color: var(--c-white-60);
+}
+.cobweb-flip {
+  transform: scaleX(-1);
+}
+
+// ---------------------------------------------------------------
+// 像素圖 PixelArt（原 PixelArt.vue 的樣式）
+// ---------------------------------------------------------------
+.pixel-art {
+  display: block;
+  overflow: visible;
+}
