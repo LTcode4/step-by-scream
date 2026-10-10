@@ -1,0 +1,58 @@
+{
+  "name": "Step by Scream",
+  "version": "1.0.0",
+  "description": "提著燈爬上 萬聖節的螺旋無限樓梯",
+  "productName": "步步驚魂 Step by Scream",
+  "author": "Ken <ken141718@gmail.com>",
+  "private": true,
+  "scripts": {
+    "start": "npm run dev",
+    "format": "npx prettier --write './**/*.{js,jsx,ts,tsx,json,md,css,scss,less,cjs,vue}'",
+    "lint": "eslint --ext .js,.ts,.vue,.cjs ./",
+    "test": "echo \"No test specified\" && exit 0",
+    "dev": "cross-env ENVIRONMENT=development quasar dev",
+    "dev:staging": "cross-env ENVIRONMENT=staging quasar dev",
+    "build:staging": "cross-env ENVIRONMENT=staging quasar build --debug",
+    "dev:production": "cross-env ENVIRONMENT=production quasar dev",
+    "build:production": "cross-env ENVIRONMENT=production quasar build"
+  },
+  "dependencies": {
+    "@gtm-support/vue-gtm": "^3.0.1",
+    "@quasar/extras": "^1.16.11",
+    "@sentry/vue": "^8.10.0",
+    "fontfaceobserver": "^2.3.0",
+    "pinia": "^2.1.7",
+    "prettier-plugin-tailwindcss": "^0.6.5",
+    "quasar": "^2.16.4",
+    "three": "^0.186.1",
+    "vconsole": "^3.15.1",
+    "vue": "^3.4.29",
+    "vue-router": "^4.3.3"
+  },
+  "devDependencies": {
+    "@quasar/app-vite": "^1.9.3",
+    "@types/node": "^20.14.7",
+    "@types/three": "^0.186.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
+    "autoprefixer": "^10.4.19",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-vue": "^9.26.0",
+    "postcss": "^8.4.38",
+    "prettier": "^3.3.2",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.4.5",
+    "wrangler": "^4.47.0"
+  },
+  "engines": {
+    "node": ">= 20",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  }
+}

@@ -1,0 +1,21 @@
+// 精簡版 Quasar CSS：只引入專案用到的元件（q-layout / q-page / q-spinner / Notify），
+// 取代完整的 quasar/dist/quasar.sass（約 190KB），讓打包容量維持 1MB 內。
+// 之後若改用其他 Quasar 元件，記得在這裡補上對應的 .sass。
+@import 'quasar/src/css/helpers/string.sass'
+@import 'quasar/src/css/helpers/math.sass'
+@import 'quasar/src/css/variables.sass'
+@import 'quasar/src/css/normalize.sass'
+
+@import 'quasar/src/components/icon/QIcon.sass'
+@import 'quasar/src/components/btn/QBtn.sass'
+@import 'quasar/src/components/layout/QLayout.sass'
+@import 'quasar/src/components/spinner/QSpinner.sass'
+@import 'quasar/src/directives/ripple/Ripple.sass'
+@import 'quasar/src/plugins/notify/Notify.sass'
+
+@import 'quasar/src/css/core/animations.sass'
+@import 'quasar/src/css/core/colors.sass'
+@import 'quasar/src/css/core/helpers.sass'
+@import 'quasar/src/css/core/positioning.sass'
+@import 'quasar/src/css/core/transitions.sass'
+@import 'quasar/src/css/core/dark.sass'
