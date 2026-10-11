@@ -25,6 +25,7 @@ export interface HazardState {
 }
 
 const PUMPKIN_HIT_RANGE = 0.35;
+const GHOST_GRACE = 0.4;
 const tmp = new Vector3();
 const tmp2 = new Vector3();
 
@@ -41,6 +42,8 @@ export abstract class Hazard {
   active = false;
 
   step = 0;
+
+  playerStep = 0;
 
   protected t = 0;
 
@@ -108,12 +111,18 @@ export class Ghost extends Hazard {
 
   private opacity = 1;
 
+  private shownFor = 0;
+
   forced: 'show' | 'hide' | null = null;
 
   private body: Group;
 
   get visibility() {
     return this.opacity;
+  }
+
+  get justAppeared() {
+    return this.shownFor < GHOST_GRACE;
   }
 
   constructor(parent: Object3D) {
@@ -152,6 +161,10 @@ export class Ghost extends Hazard {
   update(dt: number) {
     this.t += dt;
     const v = this.visibleTime;
+    if (!this.forced && this.playerStep === this.step && this.opacity < 0.5) {
+      const phase = this.t % (v + this.hiddenTime);
+      if (phase < (v * 6) / 7) this.t += v - phase;
+    }
     const time = this.t % (v + this.hiddenTime);
     if (this.forced) {
       const target = this.forced === 'show' ? 1 : 0;
@@ -160,6 +173,7 @@ export class Ghost extends Hazard {
     } else {
       this.opacity = smooth(0, v / 7, time) * (1 - smooth((v * 6) / 7, v, time));
     }
+    this.shownFor = this.opacity > 0.5 ? this.shownFor + dt : 0;
     this.setOpacity(this.opacity);
     return true;
   }
@@ -175,8 +189,6 @@ export class Pumpkin extends Hazard {
   private speed = 2.4;
 
   private roller: Group;
-
-  playerStep = 0;
 
   hitPlayer = false;
 

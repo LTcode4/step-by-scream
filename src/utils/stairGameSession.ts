@@ -61,6 +61,7 @@ export function useStairGameSession(
   function syncPause() {
     const paused = document.hidden || landscape.value;
     game.value?.setPaused(paused);
+    if (!paused) sound.unlock();
     sound.setMusicPaused(paused);
   }
   watch(landscape, syncPause);

@@ -69,7 +69,7 @@ class Sound {
       this.ctx = new Ctor();
       this.setupGraph(this.ctx);
     }
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    if (this.ctx.state !== 'running') this.ctx.resume().catch(() => undefined);
   }
 
   private setupGraph(ctx: AudioContext) {
