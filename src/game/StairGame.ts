@@ -506,12 +506,12 @@ export class StairGame {
   private tryHop(dir: 1 | -1) {
     const target = this.step + dir;
     if (target < 0) return;
-    const blocked =
-      this.invuln <= 0 && this.hazards.some((h) => h.active && h.dangerAt(target, this.airborne));
-    if (blocked) {
+    const blocker =
+      this.invuln <= 0 && this.hazards.find((h) => h.active && h.dangerAt(target, this.airborne));
+    if (blocker) {
       this.bump = 1;
       this.queued = 0;
-      this.damage();
+      if (!(blocker instanceof Ghost && blocker.justAppeared)) this.damage();
       return;
     }
     this.hopFrom = this.step;

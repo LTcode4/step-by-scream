@@ -25,6 +25,7 @@ export interface HazardState {
 }
 
 const PUMPKIN_HIT_RANGE = 0.35;
+const GHOST_GRACE = 0.4;
 const tmp = new Vector3();
 const tmp2 = new Vector3();
 
@@ -110,12 +111,18 @@ export class Ghost extends Hazard {
 
   private opacity = 1;
 
+  private shownFor = 0;
+
   forced: 'show' | 'hide' | null = null;
 
   private body: Group;
 
   get visibility() {
     return this.opacity;
+  }
+
+  get justAppeared() {
+    return this.shownFor < GHOST_GRACE;
   }
 
   constructor(parent: Object3D) {
@@ -166,6 +173,7 @@ export class Ghost extends Hazard {
     } else {
       this.opacity = smooth(0, v / 7, time) * (1 - smooth((v * 6) / 7, v, time));
     }
+    this.shownFor = this.opacity > 0.5 ? this.shownFor + dt : 0;
     this.setOpacity(this.opacity);
     return true;
   }
