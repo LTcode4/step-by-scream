@@ -42,6 +42,8 @@ export abstract class Hazard {
 
   step = 0;
 
+  playerStep = 0;
+
   protected t = 0;
 
   protected materials: ShaderMaterial[] = [];
@@ -152,6 +154,10 @@ export class Ghost extends Hazard {
   update(dt: number) {
     this.t += dt;
     const v = this.visibleTime;
+    if (!this.forced && this.playerStep === this.step && this.opacity < 0.5) {
+      const phase = this.t % (v + this.hiddenTime);
+      if (phase < (v * 6) / 7) this.t += v - phase;
+    }
     const time = this.t % (v + this.hiddenTime);
     if (this.forced) {
       const target = this.forced === 'show' ? 1 : 0;
@@ -175,8 +181,6 @@ export class Pumpkin extends Hazard {
   private speed = 2.4;
 
   private roller: Group;
-
-  playerStep = 0;
 
   hitPlayer = false;
 

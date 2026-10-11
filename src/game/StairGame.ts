@@ -664,7 +664,7 @@ export class StairGame {
     }
     this.hazards.forEach((h) => {
       if (!h.active) return;
-      if (h instanceof Pumpkin) h.playerStep = this.step;
+      h.playerStep = this.step;
       const alive = h.update(dt);
       const ghostPassed = h.kind === 'ghost' && this.step >= h.step + GHOST_PASS_STEPS;
       const passed = ghostPassed || (h.kind === 'candy' && this.step - h.step > 6);
