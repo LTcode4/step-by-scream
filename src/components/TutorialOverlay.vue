@@ -35,7 +35,7 @@
     <span
       v-if="candyPicked"
       class="fuel-pop absolute z-[45] font-mono text-title font-black text-pumpkin">
-      +30%
+      +{{ CANDY_FUEL_PERCENT }}%
     </span>
 
     <template v-if="step.id === 'rules'">
@@ -87,8 +87,10 @@ export type { TutorialAction } from 'src/utils/tutorial';
 import GestureHint from 'components/GestureHint.vue';
 import PixelArt from 'components/PixelArt.vue';
 import TutorialDoneDialog from 'components/TutorialDoneDialog.vue';
-import type { StairGame } from 'src/game/StairGame';
+import { CANDY_FUEL, type StairGame } from 'src/game/StairGame';
 import { TAP_TIMES, useTutorial } from 'src/utils/tutorial';
+
+const CANDY_FUEL_PERCENT = Math.round(CANDY_FUEL * 100);
 
 const props = defineProps<{ modelValue: boolean; game?: StairGame }>();
 const emit = defineEmits<{
