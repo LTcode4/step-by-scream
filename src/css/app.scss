@@ -35,11 +35,18 @@ html,
 body {
   overscroll-behavior: none;
 }
-// 每頁都不允許捲軸
+// 畫面固定在 #q-app，document 保留 120px 捲動空間並停在中段，
+// 讓 App 內建瀏覽器（Threads / IG）判斷不是在頂端，不觸發下拉關閉
 html,
-body,
-#q-app {
+body {
   height: 100%;
+}
+body {
+  min-height: calc(100% + 240px);
+}
+#q-app {
+  position: fixed;
+  inset: 0;
   overflow: hidden;
 }
 
