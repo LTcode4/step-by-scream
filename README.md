@@ -9,7 +9,7 @@
 - **點擊或往左滑**：上一階；**往右滑**：下一階；**左下角「跳」**：閃過滾下來的南瓜燈。
 - 幽靈會在階梯上忽隱忽現，要趁它消失時走過去。
 - 提燈的燈油會一直減少，撿糖果補回來；燈油歸零或被障礙撞到都會扣愛心，3 顆扣光就結束。
-- 分數 = 爬到的最高階數 + 糖果數 × 5。爬到台北 101（2,046 階）或哈里發塔（2,909 階）的高度，結果頁會有彩蛋。
+- 分數 = 爬到的最高階數 + 糖果數 × 5。爬到世界知名建築的階數，結果頁會有地標彩蛋：比薩斜塔 294、自由女神像 377、胡夫金字塔 560、艾菲爾鐵塔 1,665、台北101 2,046、東京晴空塔 2,523、哈里發塔 2,909 階（資料在 `src/components/landmarkArts.ts`）。
 - 第一次進遊戲會有新手教學，之後可以從 HUD 重新打開。
 
 ## 技術
@@ -37,7 +37,7 @@ npm run lint
 npm run format
 ```
 
-開發環境或網址加上 `?debug=true` 時，`window.game` 會掛上遊戲實例，方便在 console 除錯；staging 環境加 `?debug=true` 會載入 vConsole。
+開發環境，或任何環境的網址加上 `?debug=true` 時，`window.game` 會掛上遊戲實例，方便在 console 除錯；development、staging 環境加 `?debug=true` 會再載入 vConsole（手機上看 console）。
 
 ### 環境變數
 
@@ -52,7 +52,7 @@ npm run format
 ## 建置與部署
 
 ```bash
-npm run build:staging       # 輸出到 dist/spa（含 debug）
+npm run build:staging       # 輸出到 dist/spa，--debug：不壓縮、保留 sourcemap
 npm run build:production
 make deploy-prd             # 詢問版本號 → build:production → wrangler deploy
 ```
