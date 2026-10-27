@@ -72,11 +72,11 @@ export interface GameSnapshot {
 
 const MAX_HEARTS = 3;
 const HOP_TIME = 0.15;
-const INVULN_TIME = 1.4;
+const INVULN_TIME = 1.8;
 const JUMP_TIME = 0.95;
 const JUMP_BUFFER_AT = 0.75;
 const JUMP_HEIGHT = 1.25;
-const CANDY_FUEL = 0.3;
+export const CANDY_FUEL = 0.4;
 const CANDY_SCORE = 5;
 const GHOST_PASS_STEPS = 1;
 const FUEL_REFILL = 0.5;
@@ -87,31 +87,31 @@ const CAM_UP = 1.35;
 const LOOK_AHEAD = 0.75;
 const LOOK_RADIUS = 0.6;
 const LOOK_UP = 1.25;
-const SAFE_STEPS = 8;
+const SAFE_STEPS = 12;
 
-const TIER_AT = [0, 100, 300, 600, 1200, 2000];
-const FUEL_DURATION = [20, 20, 20, 20, 20, 10];
+const TIER_AT = [0, 150, 450, 900, 1600, 2600];
+const FUEL_DURATION = [25, 25, 24, 23, 22, 15];
 const GHOST_GAP: [number, number][] = [
-  [25, 30],
-  [22, 28],
-  [25, 30],
+  [30, 36],
+  [28, 34],
+  [28, 34],
+  [24, 30],
   [20, 25],
   [15, 20],
-  [10, 15],
 ];
-const GHOST_VISIBLE = [3, 3.5, 4, 5, 6, 7];
-const GHOST_HIDDEN = [3, 2.5, 2.2, 2, 1.6, 1.3];
+const GHOST_VISIBLE = [2.5, 3, 3.5, 4, 5, 6];
+const GHOST_HIDDEN = [3.5, 3, 2.8, 2.5, 2.2, 1.8];
 const PUMPKIN_GAP: [number, number][] = [
+  [12, 15],
   [10, 12],
   [8, 10],
   [6, 8],
   [4, 6],
-  [2, 5],
-  [1, 3],
+  [2.5, 4],
 ];
-const PUMPKIN_SPEED = [2.2, 2.6, 3.0, 3.4, 3.8, 5];
+const PUMPKIN_SPEED = [1.8, 2.1, 2.4, 2.8, 3.2, 4];
 const MUSIC_TENSION = [0, 0, 0, 0.5, 0.8, 1];
-const CANDY_GAP: [number, number] = [20, 30];
+const CANDY_GAP: [number, number] = [15, 22];
 
 function lerpByStep(values: number[], step: number) {
   for (let i = TIER_AT.length - 1; i > 0; i -= 1) {
